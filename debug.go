@@ -1,5 +1,3 @@
-// +build debug
-
 package ffmpeg_go
 
 import (

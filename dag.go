@@ -41,16 +41,15 @@ import (
 // Again, because nodes are immutable, the string representations should remain constant.
 type DagNode interface {
 	Hash() int
-	// Compare two nodes
+	// Equal Compare two nodes
 	Equal(other DagNode) bool
-	// Return a full string representation of the node.
+	// String Return a full string representation of the node.
 	String() string
-	// Return a partial/concise representation of the node
+	// ShortRepr Return a partial/concise representation of the node
 	ShortRepr() string
 	// IncomingEdgeMap Provides information about all incoming edges that connect to this node.
-	//
-	//        The edge map is a dictionary that maps an ``incoming_label`` to ``(outgoing_node, outgoing_label)``.  Note that
-	//        implicity, ``incoming_node`` is ``self``.  See "Edges" section above.
+	// The edge map is a dictionary that maps an ``incoming_label`` to ``(outgoing_node, outgoing_label)``.  Note that
+	// implicity, ``incoming_node`` is ``self``.  See "Edges" section above.
 	IncomingEdgeMap() map[Label]NodeInfo
 }
 

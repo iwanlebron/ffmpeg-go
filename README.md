@@ -51,9 +51,6 @@ err := ffmpeg.Filter(
     Output("./sample_data/out1.mp4").OverWriteOutput().ErrorToStdOut().Run()
 ```
 
-result:
-
-![img.png](./docs/example_overlay.png)
 
 ## Cut Video For Gif 
 
@@ -63,9 +60,6 @@ err := ffmpeg.Input("./sample_data/in1.mp4", ffmpeg.KwArgs{"ss": "1"}).
     OverWriteOutput().ErrorToStdOut().Run()
 ```
 
-result:
-
-![img.png](./docs/example_gif.gif)
 
 ## Task Frame From Video
 
@@ -93,9 +87,6 @@ if err != nil {
     t.Fatal(err)
 }
 ```
-result : 
-
-![image](./examples/sample_data/out1.jpeg)
 
 ## Get Multiple Output
 
@@ -143,11 +134,6 @@ progress:  1.00
 progress:  done
 ```
 
-## Integrate FFmpeg-go With Open-CV (gocv) For Face-detect
-
-see complete example at: [opencv](./examples/opencv_test.go)
-
-result: ![image](./examples/sample_data/face-detect.jpg)
 
 ## Set Cpu limit/request For FFmpeg-go
 
@@ -166,22 +152,3 @@ result from command top: we will see ffmpeg used 0.5 core as expected.
 PID    USER       PR  NI    VIRT    RES    SHR S  %CPU   %MEM     TIME+ COMMAND
 1386105 root      20   0 2114152 273780  31672 R  50.2   1.7      0:16.79 ffmpeg
 ```
-
-# View Progress Graph
-
-function view generate [mermaid](https://mermaid-js.github.io/mermaid/#/) chart, which can be use in markdown or view [online](https://mermaid-js.github.io/mermaid-live-editor/)
-
-```go
-split := Input(TestInputFile1).VFlip().Split()
-	split0, split1 := split.Get("0"), split.Get("1")
-	overlayFile := Input(TestOverlayFile).Crop(10, 10, 158, 112)
-b, err := Concat([]*Stream{
-    split0.Trim(KwArgs{"start_frame": 10, "end_frame": 20}),
-    split1.Trim(KwArgs{"start_frame": 30, "end_frame": 40})}).
-    Overlay(overlayFile.HFlip(), "").
-    DrawBox(50, 50, 120, 120, "red", 5).
-    Output(TestOutputFile1).
-    OverWriteOutput().View(ViewTypeFlowChart)
-fmt.Println(b)
-```
-![image](./docs/flowchart2.png)

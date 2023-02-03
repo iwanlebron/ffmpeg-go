@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"testing"
-
+	
 	"github.com/stretchr/testify/assert"
 	"github.com/u2takey/go-utils/rand"
 )
@@ -24,7 +24,7 @@ func TestFluentEquality(t *testing.T) {
 	t3 := base1.Trim(KwArgs{"start_frame": 10, "end_frame": 30})
 	t4 := base2.Trim(KwArgs{"start_frame": 10, "end_frame": 20})
 	t5 := base3.Trim(KwArgs{"start_frame": 10, "end_frame": 20})
-
+	
 	assert.Equal(t, t1.Hash(), t2.Hash())
 	assert.Equal(t, t1.Hash(), t4.Hash())
 	assert.NotEqual(t, t1.Hash(), t3.Hash())
@@ -51,7 +51,7 @@ func TestRepeatArgs(t *testing.T) {
 
 func TestGlobalArgs(t *testing.T) {
 	o := Input("dummy.mp4", nil).Output("dummy2.mp4", nil).GlobalArgs("-progress", "someurl")
-
+	
 	assert.Equal(t, o.GetArgs(), []string{
 		"-i",
 		"dummy.mp4",
@@ -164,10 +164,10 @@ func TestCombinedOutput(t *testing.T) {
 
 func TestFilterWithSelector(t *testing.T) {
 	i := Input(TestInputFile1)
-
+	
 	v1 := i.Video().HFlip()
 	a1 := i.Audio().Filter("aecho", Args{"0.8", "0.9", "1000", "0.3"})
-
+	
 	out := Output([]*Stream{a1, v1}, TestOutputFile1)
 	assert.Equal(t, []string{
 		"-i",
@@ -179,14 +179,14 @@ func TestFilterWithSelector(t *testing.T) {
 		"-map",
 		"[s1]",
 		TestOutputFile1}, out.GetArgs())
-
+	
 }
 
 func ComplexFilterAsplitExample() *Stream {
 	split := Input(TestInputFile1).VFlip().ASplit()
 	split0 := split.Get("0")
 	split1 := split.Get("1")
-
+	
 	return Concat([]*Stream{
 		split0.Filter("atrim", nil, KwArgs{"start": 10, "end": 20}),
 		split1.Filter("atrim", nil, KwArgs{"start": 30, "end": 40}),
@@ -285,12 +285,12 @@ func TestCompileWithOptions(t *testing.T) {
 }
 
 func TestPipe(t *testing.T) {
-
+	
 	width, height := 32, 32
 	frameSize := width * height * 3
 	frameCount, startFrame := 10, 2
 	_, _ = frameCount, frameSize
-
+	
 	out := Input(
 		"pipe:0",
 		KwArgs{
@@ -300,7 +300,7 @@ func TestPipe(t *testing.T) {
 			"framerate":    10}).
 		Trim(KwArgs{"start_frame": startFrame}).
 		Output("pipe:1", KwArgs{"format": "rawvideo"})
-
+	
 	args := out.GetArgs()
 	assert.Equal(t, args, []string{
 		"-f",
@@ -321,7 +321,7 @@ func TestPipe(t *testing.T) {
 		"rawvideo",
 		"pipe:1",
 	})
-
+	
 	inBuf := bytes.NewBuffer(nil)
 	for i := 0; i < frameSize*frameCount; i++ {
 		inBuf.WriteByte(byte(rand.IntnRange(0, 255)))
@@ -335,10 +335,10 @@ func TestPipe(t *testing.T) {
 func TestView(t *testing.T) {
 	a, err := ComplexFilterExample().View(ViewTypeFlowChart)
 	assert.Nil(t, err)
-
+	
 	b, err := ComplexFilterAsplitExample().View(ViewTypeStateDiagram)
 	assert.Nil(t, err)
-
+	
 	t.Log(a)
 	t.Log(b)
 }
@@ -374,13 +374,3 @@ func printGraph(s *Stream) {
 	v, _ := s.View(ViewTypeFlowChart)
 	fmt.Println(v)
 }
-
-//func TestAvFoundation(t *testing.T) {
-//	out := Input("default:none", KwArgs{"f": "avfoundation", "framerate": "30"}).
-//		Output("output.mp4", KwArgs{"format": "mp4"}).
-//		OverWriteOutput()
-//	assert.Equal(t, []string{"-f", "avfoundation", "-framerate",
-//		"30", "-i", "default:none", "-f", "mp4", "output.mp4", "-y"}, out.GetArgs())
-//	err := out.Run()
-//	assert.Nil(t, err)
-//}
