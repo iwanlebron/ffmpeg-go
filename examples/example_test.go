@@ -6,7 +6,7 @@ import (
 	"github.com/disintegration/imaging"
 	"github.com/stretchr/testify/assert"
 	
-	ffmpeg "github.com/iwanlebron/ffmpeg-go"
+	ffmpeg "github.com/ivanlebron/ffmpeg-go"
 )
 
 //

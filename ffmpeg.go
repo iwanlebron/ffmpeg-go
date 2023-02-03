@@ -92,39 +92,3 @@ func (s *Stream) Output(fileName string, kwargs ...KwArgs) *Stream {
 	//}
 	return Output([]*Stream{s}, fileName, kwargs...)
 }
-
-//func (s *Stream) outputS3Stream(fileName string, kwargs ...KwArgs) *Stream {
-//	r, w := io.Pipe()
-//	fileL := strings.SplitN(strings.TrimPrefix(fileName, "s3://"), "/", 2)
-//	if len(fileL) != 2 {
-//		log.Panic("s3 file format not valid")
-//	}
-//	args := MergeKwArgs(kwargs)
-//	awsConfig := args.PopDefault("aws_config", &aws.Config{}).(*aws.Config)
-//	bucket, key := fileL[0], fileL[1]
-//	o := Output([]*Stream{s}, "pipe:", args).
-//		WithOutput(w, os.Stdout)
-//	done := make(chan struct{})
-//	runHook := RunHook{
-//		f: func() {
-//			defer func() {
-//				done <- struct{}{}
-//			}()
-//			sess, err := session.NewSession(awsConfig)
-//			uploader := s3manager.NewUploader(sess)
-//			_, err = uploader.Upload(&s3manager.UploadInput{
-//				Bucket: &bucket,
-//				Key:    &key,
-//				Body:   r,
-//			})
-//			//fmt.Println(ioutil.ReadAll(r))
-//			if err != nil {
-//				log.Println("upload fail", err)
-//			}
-//		},
-//		done:   done,
-//		closer: w,
-//	}
-//	o.Context = context.WithValue(o.Context, "run_hook", &runHook)
-//	return o
-//}

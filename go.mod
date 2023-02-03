@@ -1,4 +1,4 @@
-module github.com/iwanlebron/ffmpeg-go
+module github.com/ivanlebron/ffmpeg-go
 
 go 1.19
 

@@ -6,7 +6,7 @@ import (
 	"io"
 	"os"
 	
-	ffmpeg "github.com/iwanlebron/ffmpeg-go"
+	ffmpeg "github.com/ivanlebron/ffmpeg-go"
 )
 
 func ExampleReadFrameAsJpeg(inFileName string, frameNum int) io.Reader {
