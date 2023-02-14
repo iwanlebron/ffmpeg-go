@@ -1,8 +1,16 @@
 package ffmpeg_go
 
 import (
+	"context"
 	"errors"
+	"io"
 	"log"
+	"os"
+	"strings"
+	
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 )
 
 // Input file URL (ffmpeg ``-i`` option)
@@ -26,7 +34,6 @@ func Input(filename string, kwargs ...KwArgs) *Stream {
 }
 
 // Add extra global command-line argument(s), e.g. ``-progress``.
-
 func (s *Stream) GlobalArgs(args ...string) *Stream {
 	if s.Type != "OutputStream" {
 		panic("cannot overwrite outputs on non-OutputStream")
@@ -35,8 +42,8 @@ func (s *Stream) GlobalArgs(args ...string) *Stream {
 }
 
 // Overwrite output files without asking (ffmpeg ``-y`` option)
-// Official documentation: `Main options <https://ffmpeg.org/ffmpeg.html#Main-options>` _
-
+//
+// Official documentation: `Main options <https://ffmpeg.org/ffmpeg.html#Main-options>`_
 func (s *Stream) OverwriteOutput(stream *Stream) *Stream {
 	if s.Type != "OutputStream" {
 		panic("cannot overwrite outputs on non-OutputStream")
@@ -45,7 +52,6 @@ func (s *Stream) OverwriteOutput(stream *Stream) *Stream {
 }
 
 // Include all given outputs in one ffmpeg command line
-
 func MergeOutputs(streams ...*Stream) *Stream {
 	return NewMergeOutputsNode("merge_output", streams).Stream("", "")
 }
@@ -80,6 +86,7 @@ func Output(streams []*Stream, fileName string, kwargs ...KwArgs) *Stream {
 		}
 		args["filename"] = fileName
 	}
+	
 	return NewOutputNode("output", streams, nil, args).Stream("", "")
 }
 
@@ -87,8 +94,45 @@ func (s *Stream) Output(fileName string, kwargs ...KwArgs) *Stream {
 	if s.Type != "FilterableStream" {
 		log.Panic("cannot output on non-FilterableStream")
 	}
-	//if strings.HasPrefix(fileName, "s3://") {
-	//	return s.outputS3Stream(fileName, kwargs...)
-	//}
+	if strings.HasPrefix(fileName, "s3://") {
+		return s.outputS3Stream(fileName, kwargs...)
+	}
 	return Output([]*Stream{s}, fileName, kwargs...)
+}
+
+func (s *Stream) outputS3Stream(fileName string, kwargs ...KwArgs) *Stream {
+	r, w := io.Pipe()
+	fileL := strings.SplitN(strings.TrimPrefix(fileName, "s3://"), "/", 2)
+	if len(fileL) != 2 {
+		log.Panic("s3 file format not valid")
+	}
+	args := MergeKwArgs(kwargs)
+	awsConfig := args.PopDefault("aws_config", &aws.Config{}).(*aws.Config)
+	bucket, key := fileL[0], fileL[1]
+	o := Output([]*Stream{s}, "pipe:", args).
+		WithOutput(w, os.Stdout)
+	done := make(chan struct{})
+	runHook := RunHook{
+		f: func() {
+			defer func() {
+				done <- struct{}{}
+			}()
+			
+			sess, err := session.NewSession(awsConfig)
+			uploader := s3manager.NewUploader(sess)
+			_, err = uploader.Upload(&s3manager.UploadInput{
+				Bucket: &bucket,
+				Key:    &key,
+				Body:   r,
+			})
+			//fmt.Println(ioutil.ReadAll(r))
+			if err != nil {
+				log.Println("upload fail", err)
+			}
+		},
+		done:   done,
+		closer: w,
+	}
+	o.Context = context.WithValue(o.Context, "run_hook", &runHook)
+	return o
 }

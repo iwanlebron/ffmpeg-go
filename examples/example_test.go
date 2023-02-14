@@ -1,6 +1,7 @@
 package examples
 
 import (
+	"log"
 	"testing"
 	
 	"github.com/disintegration/imaging"
@@ -12,6 +13,28 @@ import (
 //
 // More simple examples please refer to ffmpeg_test.go
 //
+
+func TestLive(t *testing.T) {
+	
+	if err := ffmpeg.Input("rtmp://localhost/live/test").
+		Output("rtmp://localhost/live/mac",
+			ffmpeg.KwArgs{
+				"c:v": "h264",
+				"c:a": "aac",
+			},
+			ffmpeg.KwArgs{
+				"f": "flv",
+			}).
+		ErrorToStdOut().Run(); err != nil {
+		log.Println("err ", err.Error())
+	} else {
+		log.Println("no err")
+	}
+	//assert.Nil(t, err)
+	
+	//ffmpeg.Input("").Output("").GlobalArgs().Run()
+	
+}
 
 func TestExampleStream(t *testing.T) {
 	ExampleStream("./sample_data/in1.mp4", "./sample_data/out1.mp4", false)

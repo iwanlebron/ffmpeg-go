@@ -129,7 +129,7 @@ func _getOutputArgs(node *Node, streamNameMap map[string]string) []string {
 		}
 	}
 	kwargs := node.kwargs.Copy()
-
+	
 	filename := kwargs.PopString("filename")
 	if kwargs.HasKey("format") {
 		args = append(args, "-f", kwargs.PopString("format"))
@@ -143,7 +143,7 @@ func _getOutputArgs(node *Node, streamNameMap map[string]string) []string {
 	if kwargs.HasKey("video_size") {
 		args = append(args, "-video_size", kwargs.PopString("video_size"))
 	}
-
+	
 	args = append(args, ConvertKwargsToCmdLineArgs(kwargs)...)
 	args = append(args, filename)
 	return args
@@ -253,7 +253,7 @@ func (s *Stream) SetFfmpegPath(path string) *Stream {
 	return s
 }
 
-// for test
+// Compile for test
 func (s *Stream) Compile(options ...CompilationOption) *exec.Cmd {
 	args := s.GetArgs()
 	cmd := exec.CommandContext(s.Context, s.FfmpegPath, args...)
