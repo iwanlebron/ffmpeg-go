@@ -15,7 +15,7 @@ func ExampleReadFrameAsJpeg(inFileName string, frameNum int) io.Reader {
 		Filter("select", ffmpeg.Args{fmt.Sprintf("gte(n,%d)", frameNum)}).
 		Output("pipe:", ffmpeg.KwArgs{"vframes": 1, "format": "image2", "vcodec": "mjpeg"}).
 		WithOutput(buf, os.Stdout).
-		Run()
+		Run(nil)
 	if err != nil {
 		panic(err)
 	}

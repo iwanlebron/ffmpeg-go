@@ -64,7 +64,7 @@ func startFFmpegProcess1(infileName string, writer io.WriteCloser) <-chan error 
 					"format": "rawvideo", "pix_fmt": "rgb24",
 				}).
 			WithOutput(writer).
-			Run()
+			Run(nil)
 		log.Println("ffmpeg process1 done")
 		_ = writer.Close()
 		done <- err
@@ -84,7 +84,7 @@ func startFFmpegProcess2(outfileName string, buf io.Reader, width, height int) <
 			Output(outfileName, ffmpeg.KwArgs{"pix_fmt": "yuv420p"}).
 			OverWriteOutput().
 			WithInput(buf).
-			Run()
+			Run(nil)
 		log.Println("ffmpeg process2 done")
 		done <- err
 		close(done)

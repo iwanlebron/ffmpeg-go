@@ -117,7 +117,6 @@ func (s *Stream) outputS3Stream(fileName string, kwargs ...KwArgs) *Stream {
 			defer func() {
 				done <- struct{}{}
 			}()
-			
 			sess, err := session.NewSession(awsConfig)
 			uploader := s3manager.NewUploader(sess)
 			_, err = uploader.Upload(&s3manager.UploadInput{
@@ -125,7 +124,6 @@ func (s *Stream) outputS3Stream(fileName string, kwargs ...KwArgs) *Stream {
 				Key:    &key,
 				Body:   r,
 			})
-			//fmt.Println(ioutil.ReadAll(r))
 			if err != nil {
 				log.Println("upload fail", err)
 			}

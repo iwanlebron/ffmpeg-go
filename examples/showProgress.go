@@ -32,7 +32,7 @@ func ExampleShowProgress(inFileName, outFileName string) {
 		Output(outFileName, ffmpeg.KwArgs{"c:v": "libx264", "preset": "veryslow"}).
 		GlobalArgs("-progress", "unix://"+TempSock(totalDuration)).
 		OverWriteOutput().
-		Run()
+		Run(nil)
 	if err != nil {
 		panic(err)
 	}

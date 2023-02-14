@@ -273,7 +273,7 @@ func (s *Stream) Compile(options ...CompilationOption) *exec.Cmd {
 	return cmd
 }
 
-func (s *Stream) Run(options ...CompilationOption) error {
+func (s *Stream) Run(fn func(), options ...CompilationOption) error {
 	if s.Context.Value("run_hook") != nil {
 		hook := s.Context.Value("run_hook").(*RunHook)
 		go hook.f()
@@ -283,6 +283,9 @@ func (s *Stream) Run(options ...CompilationOption) error {
 			}
 			<-hook.done
 		}()
+	}
+	if fn != nil {
+		go fn()
 	}
 	return s.Compile(options...).Run()
 }
