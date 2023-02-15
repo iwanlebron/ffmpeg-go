@@ -65,7 +65,7 @@ func TestSimpleExample(t *testing.T) {
 	err := Input(TestInputFile1, nil).
 		Output(TestOutputFile1, nil).
 		OverWriteOutput().
-		Run()
+		Run(nil)
 	assert.Nil(t, err)
 }
 
@@ -73,7 +73,7 @@ func TestSimpleOverLayExample(t *testing.T) {
 	err := Input(TestInputFile1, nil).
 		Overlay(Input(TestOverlayFile), "").
 		Output(TestOutputFile1).OverWriteOutput().
-		Run()
+		Run(nil)
 	assert.Nil(t, err)
 }
 
@@ -210,6 +210,14 @@ func TestFilterConcatVideoOnly(t *testing.T) {
 	}, args)
 }
 
+func TestConcatOutput(t *testing.T) {
+	in1 := Input("in1.mp4")
+	in2 := Input("in2.mp4")
+	err := Concat([]*Stream{in1, in2}).Output("out.mp4").Run(nil)
+	assert.Equal(t, nil, err)
+	
+}
+
 func TestFilterConcatAudioOnly(t *testing.T) {
 	in1 := Input("in1.mp4")
 	in2 := Input("in2.mp4")
@@ -327,7 +335,7 @@ func TestPipe(t *testing.T) {
 		inBuf.WriteByte(byte(rand.IntnRange(0, 255)))
 	}
 	outBuf := bytes.NewBuffer(nil)
-	err := out.WithInput(inBuf).WithOutput(outBuf).Run()
+	err := out.WithInput(inBuf).WithOutput(outBuf).Run(nil)
 	assert.Nil(t, err)
 	assert.Equal(t, outBuf.Len(), frameSize*(frameCount-startFrame))
 }
