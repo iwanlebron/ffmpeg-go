@@ -34,6 +34,7 @@ func Input(filename string, kwargs ...KwArgs) *Stream {
 }
 
 // Add extra global command-line argument(s), e.g. ``-progress``.
+
 func (s *Stream) GlobalArgs(args ...string) *Stream {
 	if s.Type != "OutputStream" {
 		panic("cannot overwrite outputs on non-OutputStream")
@@ -42,8 +43,8 @@ func (s *Stream) GlobalArgs(args ...string) *Stream {
 }
 
 // Overwrite output files without asking (ffmpeg ``-y`` option)
-//
 // Official documentation: `Main options <https://ffmpeg.org/ffmpeg.html#Main-options>`_
+
 func (s *Stream) OverwriteOutput(stream *Stream) *Stream {
 	if s.Type != "OutputStream" {
 		panic("cannot overwrite outputs on non-OutputStream")
@@ -52,6 +53,7 @@ func (s *Stream) OverwriteOutput(stream *Stream) *Stream {
 }
 
 // Include all given outputs in one ffmpeg command line
+
 func MergeOutputs(streams ...*Stream) *Stream {
 	return NewMergeOutputsNode("merge_output", streams).Stream("", "")
 }

@@ -94,11 +94,11 @@ func (s *Stream) Drawtext(text string, x, y int, escape bool, kwargs ...KwArgs) 
 	if x != 0 {
 		args["x"] = x
 	}
-
+	
 	if y != 0 {
 		args["y"] = y
 	}
-
+	
 	return NewFilterNode("drawtext", []*Stream{s}, 1, nil, args).Stream("", "")
 }
 
@@ -129,6 +129,7 @@ func (s *Stream) Hue(kwargs ...KwArgs) *Stream {
 }
 
 // todo fix this
+
 func (s *Stream) ColorChannelMixer(kwargs ...KwArgs) *Stream {
 	AssertType(s.Type, "FilterableStream", "colorchannelmixer")
 	return NewFilterNode("colorchannelmixer", []*Stream{s}, 1, nil, MergeKwArgs(kwargs)).Stream("", "")
