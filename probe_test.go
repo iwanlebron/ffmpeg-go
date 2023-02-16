@@ -10,7 +10,7 @@ import (
 )
 
 func TestProbe(t *testing.T) {
-	data, err := Probe(TestInputFile1, nil)
+	data, err := Probe("", TestInputFile1, nil)
 	assert.Nil(t, err)
 	duration, err := probeOutputDuration(data)
 	assert.Nil(t, err)

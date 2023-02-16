@@ -8,21 +8,21 @@ import (
 )
 
 // Probe Run ffprobe on the specified file and return a JSON representation of the output.
-func Probe(fileName string, kwargs ...KwArgs) (string, error) {
-	return ProbeWithTimeout(fileName, 0, MergeKwArgs(kwargs))
+func Probe(probePath, fileName string, kwargs ...KwArgs) (string, error) {
+	return ProbeWithTimeout(probePath, fileName, 0, MergeKwArgs(kwargs))
 }
 
-func ProbeWithTimeout(fileName string, timeOut time.Duration, kwargs KwArgs) (string, error) {
+func ProbeWithTimeout(probePath, fileName string, timeOut time.Duration, kwargs KwArgs) (string, error) {
 	args := KwArgs{
 		"show_format":  "",
 		"show_streams": "",
 		"of":           "json",
 	}
-
-	return ProbeWithTimeoutExec(fileName, timeOut, MergeKwArgs([]KwArgs{args, kwargs}))
+	
+	return ProbeWithTimeoutExec(probePath, fileName, timeOut, MergeKwArgs([]KwArgs{args, kwargs}))
 }
 
-func ProbeWithTimeoutExec(fileName string, timeOut time.Duration, kwargs KwArgs) (string, error) {
+func ProbeWithTimeoutExec(probePath, fileName string, timeOut time.Duration, kwargs KwArgs) (string, error) {
 	args := ConvertKwargsToCmdLineArgs(kwargs)
 	args = append(args, fileName)
 	ctx := context.Background()
@@ -31,7 +31,10 @@ func ProbeWithTimeoutExec(fileName string, timeOut time.Duration, kwargs KwArgs)
 		ctx, cancel = context.WithTimeout(context.Background(), timeOut)
 		defer cancel()
 	}
-	cmd := exec.CommandContext(ctx, "ffprobe", args...)
+	if probePath == "" {
+		probePath = "ffprobe"
+	}
+	cmd := exec.CommandContext(ctx, probePath, args...)
 	buf := bytes.NewBuffer(nil)
 	cmd.Stdout = buf
 	err := cmd.Run()
