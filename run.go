@@ -287,17 +287,14 @@ func (s *Stream) Run(fn func(), options ...CompilationOption) (int, error) {
 	if fn != nil {
 		go fn()
 	}
-	
-	return run(s.Compile(options...))
-	
-	//return s.Compile(options...).Run()
-	
+	return s.run(s.Compile(options...))
 }
 
-func run(c *exec.Cmd) (int, error) {
+func (s *Stream) run(c *exec.Cmd) (int, error) {
 	if err := c.Start(); err != nil {
 		return -1, err
 	}
+	s.Context = context.WithValue(s.Context, "pid", c.Process.Pid)
 	return c.Process.Pid, c.Wait()
 	
 }
