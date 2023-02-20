@@ -29,7 +29,7 @@ func ExampleStream(inFileName, outFileName string, dream bool) {
 
 func getVideoSize(fileName string) (int, int) {
 	log.Println("Getting video size for", fileName)
-	data, err := ffmpeg.Probe(fileName)
+	data, err := ffmpeg.Probe("", fileName)
 	if err != nil {
 		panic(err)
 	}
@@ -58,7 +58,7 @@ func startFFmpegProcess1(infileName string, writer io.WriteCloser) <-chan error 
 	log.Println("Starting ffmpeg process1")
 	done := make(chan error)
 	go func() {
-		err := ffmpeg.Input(infileName).
+		_, err := ffmpeg.Input(infileName).
 			Output("pipe:",
 				ffmpeg.KwArgs{
 					"format": "rawvideo", "pix_fmt": "rgb24",
@@ -77,7 +77,7 @@ func startFFmpegProcess2(outfileName string, buf io.Reader, width, height int) <
 	log.Println("Starting ffmpeg process2")
 	done := make(chan error)
 	go func() {
-		err := ffmpeg.Input("pipe:",
+		_, err := ffmpeg.Input("pipe:",
 			ffmpeg.KwArgs{"format": "rawvideo",
 				"pix_fmt": "rgb24", "s": fmt.Sprintf("%dx%d", width, height),
 			}).

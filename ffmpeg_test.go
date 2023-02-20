@@ -36,7 +36,7 @@ const (
 //-f tee -map 0:v "[f=segment:reset_timestamps=1:segment_atclocktime=1:segment_time=60:strftime=1]./record/%Y%m%d%H%M.mp4|[f=flv]rtmp://127.0.0.1/live/mac"
 //multi
 func TestMultiOutput(t *testing.T) {
-	args := Input("rtmp://127.0.0.1/live/test").
+	Input("rtmp://127.0.0.1/live/test").
 		Output("[f=segment:reset_timestamps=1:segment_atclocktime=1:segment_time=60:strftime=1]"+
 			"/Users/zhangguoqing/github/ffmpeg-go/record/%Y%m%d%H%M.mp4|"+
 			"[f=flv]rtmp://127.0.0.1/live/mac1",
@@ -52,7 +52,6 @@ func TestMultiOutput(t *testing.T) {
 				"f":   "tee",
 				"map": "0:v",
 			}).GlobalArgs("-y", "-an").Run(nil)
-	t.Log(args)
 	//log.Println(output.GetArgs())
 	//output.String()
 }
@@ -104,7 +103,7 @@ func TestGlobalArgs(t *testing.T) {
 }
 
 func TestSimpleExample(t *testing.T) {
-	err := Input(TestInputFile1, nil).
+	_, err := Input(TestInputFile1, nil).
 		Output(TestOutputFile1, nil).
 		OverWriteOutput().
 		Run(nil)
@@ -112,7 +111,7 @@ func TestSimpleExample(t *testing.T) {
 }
 
 func TestSimpleOverLayExample(t *testing.T) {
-	err := Input(TestInputFile1, nil).
+	_, err := Input(TestInputFile1, nil).
 		Overlay(Input(TestOverlayFile), "").
 		Output(TestOutputFile1).OverWriteOutput().
 		Run(nil)
@@ -255,7 +254,7 @@ func TestFilterConcatVideoOnly(t *testing.T) {
 func TestConcatOutput(t *testing.T) {
 	in1 := Input("in1.mp4")
 	in2 := Input("in2.mp4")
-	err := Concat([]*Stream{in1, in2}).Output("out.mp4").Run(nil)
+	_, err := Concat([]*Stream{in1, in2}).Output("out.mp4").Run(nil)
 	assert.Equal(t, nil, err)
 	
 }
@@ -377,7 +376,7 @@ func TestPipe(t *testing.T) {
 		inBuf.WriteByte(byte(rand.IntnRange(0, 255)))
 	}
 	outBuf := bytes.NewBuffer(nil)
-	err := out.WithInput(inBuf).WithOutput(outBuf).Run(nil)
+	_, err := out.WithInput(inBuf).WithOutput(outBuf).Run(nil)
 	assert.Nil(t, err)
 	assert.Equal(t, outBuf.Len(), frameSize*(frameCount-startFrame))
 }
