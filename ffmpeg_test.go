@@ -15,6 +15,48 @@ const (
 	TestOverlayFile = "./examples/sample_data/overlay.png"
 )
 
+//ffmpeg -y -rtsp_transport tcp -an -i rtsp://admin:password01!@192.168.188.21:554/Streaming/Channels/601
+//-r 15 -g 30 -c:v copy -c:a copy -b:v 1000k -flags +global_header -strict experimental
+//-f tee -map 0:v
+//[f=segment:segment_time=\'00:01:00\':reset_timestamps=1:segment_atclocktime=1:strftime=1:segment_format=mpegts]
+//static/records/8e7bf4ddff2a4f18adb36496334356fe/%Y-%m-%d-%H-%M-%S.ts|
+//[f=flv]rtmp://192.168.111.140/live/8e7bf4ddff2a4f18adb36496334356fe
+
+//ffmpeg -y -an -i rtmp://127.0.0.1/live/test -c:v copy -c:a copy -flags +global_header -strict experimental -f tee
+//-map 0:v "[f=segment:reset_timestamps=1:segment_atclocktime=1:segment_time=60:strftime=1]./record/%Y%m%d%H%M.mp4|[f=flv]rtmp://127.0.0.1/live/mac"
+
+//ffmpeg -use_wallclock_as_timestamps 1 - rtsp_transport tcp -i rtsp://[username]:[password]@[ip]:[port]
+//-vcodec copy -acodec copy -flags +global_header -strict experimental
+//-f segment -reset_timestamps 1 -segment_atclocktime 1 -segment_time 60 -strftime 1 /outdir/%Y%m%d%H%M.mp4
+
+//ffmpeg -y -an -i rtmp://127.0.0.1/live/test -c:v copy -c:a copy  -flags +global_header -strict experimental
+//-f tee -map 0:v "[f=segment -reset_timestamps=1 -segment_atclocktime=1 -segment_time=60 -strftime=1]./record/%Y%m%d%H%M.mp4|[f=flv]rtmp://127.0.0.1/live/mac"
+
+//ffmpeg -y -an -i rtmp://127.0.0.1/live/test -c:v copy -c:a copy  -flags +global_header -strict experimental
+//-f tee -map 0:v "[f=segment:reset_timestamps=1:segment_atclocktime=1:segment_time=60:strftime=1]./record/%Y%m%d%H%M.mp4|[f=flv]rtmp://127.0.0.1/live/mac"
+//multi
+func TestMultiOutput(t *testing.T) {
+	args := Input("rtmp://127.0.0.1/live/test").
+		Output("[f=segment:reset_timestamps=1:segment_atclocktime=1:segment_time=60:strftime=1]"+
+			"/Users/zhangguoqing/github/ffmpeg-go/record/%Y%m%d%H%M.mp4|"+
+			"[f=flv]rtmp://127.0.0.1/live/mac1",
+			KwArgs{
+				"flags":  "+global_header",
+				"strict": "experimental",
+			},
+			KwArgs{
+				"vcodec": "copy",
+				"acodec": "copy",
+			},
+			KwArgs{
+				"f":   "tee",
+				"map": "0:v",
+			}).GlobalArgs("-y", "-an").Run(nil)
+	t.Log(args)
+	//log.Println(output.GetArgs())
+	//output.String()
+}
+
 func TestFluentEquality(t *testing.T) {
 	base1 := Input("dummy1.mp4")
 	base2 := Input("dummy1.mp4")
