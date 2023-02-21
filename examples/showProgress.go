@@ -28,7 +28,7 @@ func ExampleShowProgress(inFileName, outFileName string) {
 		panic(err)
 	}
 	
-	_, err = ffmpeg.Input(inFileName).
+	err = ffmpeg.Input(inFileName).
 		Output(outFileName, ffmpeg.KwArgs{"c:v": "libx264", "preset": "veryslow"}).
 		GlobalArgs("-progress", "unix://"+TempSock(totalDuration)).
 		OverWriteOutput().

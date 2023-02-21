@@ -3,6 +3,7 @@ package examples
 import (
 	"log"
 	"testing"
+	"time"
 	
 	"github.com/disintegration/imaging"
 	"github.com/stretchr/testify/assert"
@@ -15,23 +16,23 @@ import (
 //
 
 func TestLive(t *testing.T) {
-	
-	if _, err := ffmpeg.Input("rtmp://localhost/live/test").
-		Output("rtmp://localhost/live/mac",
-			ffmpeg.KwArgs{
-				"c:v": "h264",
-				"c:a": "aac",
-			},
-			ffmpeg.KwArgs{
-				"f": "flv",
-			}).
+	s := ffmpeg.Input("rtmp://127.0.0.1/live/test")
+	if err := s.Output("rtmp://127.0.0.1/live/mac",
+		ffmpeg.KwArgs{
+			"c:v": "h264",
+			"c:a": "aac",
+		},
+		ffmpeg.KwArgs{
+			"f": "flv",
+		}).
 		ErrorToStdOut().Run(func() {
-		log.Println("1111")
+		//log.Println("1111")
+		time.Sleep(3 * time.Second)
+		pid := s.Context.Value("pid").(int)
+		log.Println("pid ", pid)
 		
 	}); err != nil {
 		log.Println("err ", err.Error())
-	} else {
-		log.Println("no err")
 	}
 	//assert.Nil(t, err)
 	
@@ -60,29 +61,38 @@ func TestExampleShowProgress(t *testing.T) {
 }
 
 func TestExampleChangeCodec(t *testing.T) {
-	_, err := ffmpeg.Input("./sample_data/in1.mp4").
+	err := ffmpeg.Input("./sample_data/in1.mp4").
 		Output("./sample_data/out1.mp4", ffmpeg.KwArgs{"c:v": "libx265"}).
 		OverWriteOutput().ErrorToStdOut().Run(nil)
 	assert.Nil(t, err)
 }
 
 func TestExampleCutVideo(t *testing.T) {
-	_, err := ffmpeg.Input("./sample_data/in1.mp4", ffmpeg.KwArgs{"ss": 1}).
-		Output("./sample_data/out1.mp4", ffmpeg.KwArgs{"t": 1}).OverWriteOutput().Run(nil)
+	stream := ffmpeg.Input("./sample_data/in1.mp4", ffmpeg.KwArgs{"ss": 1})
+	err := stream.Output("./sample_data/out1.mp4", ffmpeg.KwArgs{"t": 1}).OverWriteOutput().Run(
+		func() {
+			time.Sleep(1 * time.Second)
+			pid := stream.Context.Value("pid").(int)
+			log.Println("pid ", pid)
+			
+		})
+	//time.Sleep(10 * time.Second)
 	assert.Nil(t, err)
 }
 
 func TestExampleScaleVideo(t *testing.T) {
-	_, err := ffmpeg.Input("./sample_data/in1.mp4").
+	err := ffmpeg.Input("./sample_data/in1.mp4").
 		Output("./sample_data/out1.mp4", ffmpeg.KwArgs{"vf": "scale=w=480:h=240"}).
-		OverWriteOutput().ErrorToStdOut().Run(nil)
+		OverWriteOutput().ErrorToStdOut().Run(func() {
+		
+	})
 	assert.Nil(t, err)
 }
 
 func TestExampleAddWatermark(t *testing.T) {
 	// show watermark with size 64:-1 in the top left corner after seconds 1
 	overlay := ffmpeg.Input("./sample_data/overlay.png").Filter("scale", ffmpeg.Args{"64:-1"})
-	_, err := ffmpeg.Filter(
+	err := ffmpeg.Filter(
 		[]*ffmpeg.Stream{
 			ffmpeg.Input("./sample_data/in1.mp4"),
 			overlay,
@@ -92,10 +102,10 @@ func TestExampleAddWatermark(t *testing.T) {
 }
 
 func TestExampleCutVideoForGif(t *testing.T) {
-	pid, err := ffmpeg.Input("./sample_data/in1.mp4", ffmpeg.KwArgs{"ss": "1"}).
+	err := ffmpeg.Input("./sample_data/in1.mp4", ffmpeg.KwArgs{"ss": "1"}).
 		Output("./sample_data/out1.gif", ffmpeg.KwArgs{"s": "320x240", "pix_fmt": "rgb24", "t": "3", "r": "3"}).
 		OverWriteOutput().ErrorToStdOut().Run(nil)
-	log.Println("pid", pid)
+	//log.Println("pid", pid)
 	assert.Nil(t, err)
 }
 
@@ -105,6 +115,6 @@ func TestExampleMultipleOutput(t *testing.T) {
 		Output("./sample_data/1920.mp4", ffmpeg.KwArgs{"b:v": "5000k"})
 	out2 := input.Get("1").Filter("scale", ffmpeg.Args{"1280:-1"}).
 		Output("./sample_data/1280.mp4", ffmpeg.KwArgs{"b:v": "2800k"})
-	_, err := ffmpeg.MergeOutputs(out1, out2).OverWriteOutput().ErrorToStdOut().Run(nil)
+	err := ffmpeg.MergeOutputs(out1, out2).OverWriteOutput().ErrorToStdOut().Run(nil)
 	assert.Nil(t, err)
 }

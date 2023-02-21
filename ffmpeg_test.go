@@ -3,6 +3,7 @@ package ffmpeg_go
 import (
 	"bytes"
 	"fmt"
+	"log"
 	"testing"
 	
 	"github.com/stretchr/testify/assert"
@@ -103,7 +104,7 @@ func TestGlobalArgs(t *testing.T) {
 }
 
 func TestSimpleExample(t *testing.T) {
-	_, err := Input(TestInputFile1, nil).
+	err := Input(TestInputFile1, nil).
 		Output(TestOutputFile1, nil).
 		OverWriteOutput().
 		Run(nil)
@@ -111,10 +112,18 @@ func TestSimpleExample(t *testing.T) {
 }
 
 func TestSimpleOverLayExample(t *testing.T) {
-	_, err := Input(TestInputFile1, nil).
-		Overlay(Input(TestOverlayFile), "").
-		Output(TestOutputFile1).OverWriteOutput().
-		Run(nil)
+	s := Input(TestInputFile1, nil).Overlay(Input(TestOverlayFile), "").
+		Output(TestOutputFile1).OverWriteOutput()
+	err := s.Run(func() {
+		log.Println("pid ", s.Context.Value("pid").(int))
+	})
+	
+	// this code will panic, because s is not complete
+	//s := Input(TestInputFile1, nil)
+	//err := s.Overlay(Input(TestOverlayFile), "").
+	//	Output(TestOutputFile1).OverWriteOutput().Run(func() {
+	//	log.Println("pid ", s.Context.Value("pid").(int))
+	//})
 	assert.Nil(t, err)
 }
 
@@ -254,7 +263,7 @@ func TestFilterConcatVideoOnly(t *testing.T) {
 func TestConcatOutput(t *testing.T) {
 	in1 := Input("in1.mp4")
 	in2 := Input("in2.mp4")
-	_, err := Concat([]*Stream{in1, in2}).Output("out.mp4").Run(nil)
+	err := Concat([]*Stream{in1, in2}).Output("out.mp4").Run(nil)
 	assert.Equal(t, nil, err)
 	
 }
@@ -376,7 +385,7 @@ func TestPipe(t *testing.T) {
 		inBuf.WriteByte(byte(rand.IntnRange(0, 255)))
 	}
 	outBuf := bytes.NewBuffer(nil)
-	_, err := out.WithInput(inBuf).WithOutput(outBuf).Run(nil)
+	err := out.WithInput(inBuf).WithOutput(outBuf).Run(nil)
 	assert.Nil(t, err)
 	assert.Equal(t, outBuf.Len(), frameSize*(frameCount-startFrame))
 }

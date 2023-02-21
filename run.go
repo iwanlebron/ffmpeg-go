@@ -273,7 +273,7 @@ func (s *Stream) Compile(options ...CompilationOption) *exec.Cmd {
 	return cmd
 }
 
-func (s *Stream) Run(fn func(), options ...CompilationOption) (int, error) {
+func (s *Stream) Run(fn func(), options ...CompilationOption) error {
 	if s.Context.Value("run_hook") != nil {
 		hook := s.Context.Value("run_hook").(*RunHook)
 		go hook.f()
@@ -284,17 +284,19 @@ func (s *Stream) Run(fn func(), options ...CompilationOption) (int, error) {
 			<-hook.done
 		}()
 	}
-	if fn != nil {
-		go fn()
-	}
+	defer func() {
+		if fn != nil {
+			fn()
+		}
+	}()
 	return s.run(s.Compile(options...))
 }
 
-func (s *Stream) run(c *exec.Cmd) (int, error) {
+func (s *Stream) run(c *exec.Cmd) error {
 	if err := c.Start(); err != nil {
-		return -1, err
+		return err
 	}
 	s.Context = context.WithValue(s.Context, "pid", c.Process.Pid)
-	return c.Process.Pid, c.Wait()
+	return c.Wait()
 	
 }

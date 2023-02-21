@@ -21,7 +21,6 @@ func ProbeReaderWithTimeout(probePath string, r io.Reader, timeOut time.Duration
 		"show_streams": "",
 		"of":           "json",
 	}
-	
 	return ProbeReaderWithTimeoutExec(probePath, r, timeOut, MergeKwArgs([]KwArgs{args, kwargs}))
 }
 
