@@ -9,7 +9,6 @@ import (
 	"os/exec"
 	"sort"
 	"strings"
-	"syscall"
 	"time"
 )
 
@@ -242,11 +241,11 @@ type CompilationOption func(s *Stream, cmd *exec.Cmd)
 // SeparateProcessGroup ensures that the command is run in a separate process
 // group. This is useful to enable handling of signals such as SIGINT without
 // propagating them to the ffmpeg process.
-func SeparateProcessGroup() CompilationOption {
-	return func(s *Stream, cmd *exec.Cmd) {
-		cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true, Pgid: 0}
-	}
-}
+//func SeparateProcessGroup() CompilationOption {
+//	return func(s *Stream, cmd *exec.Cmd) {
+//		cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true, Pgid: 0}
+//	}
+//}
 
 func (s *Stream) SetFfmpegPath(path string) *Stream {
 	s.FfmpegPath = path
@@ -289,14 +288,15 @@ func (s *Stream) Run(fn func(), options ...CompilationOption) error {
 			fn()
 		}
 	}()
-	return s.run(s.Compile(options...))
+	return s.Compile(options...).Run()
+	//return s.run(s.Compile(options...))
 }
 
-func (s *Stream) run(c *exec.Cmd) error {
-	if err := c.Start(); err != nil {
-		return err
-	}
-	s.Context = context.WithValue(s.Context, "pid", c.Process.Pid)
-	return c.Wait()
-	
-}
+//func (s *Stream) run(c *exec.Cmd) error {
+//	if err := c.Start(); err != nil {
+//		return err
+//	}
+//	s.Context = context.WithValue(s.Context, "pid", c.Process.Pid)
+//	return c.Wait()
+//
+//}
