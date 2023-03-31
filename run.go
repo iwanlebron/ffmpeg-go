@@ -192,7 +192,8 @@ func (s *Stream) GetArgs() []string {
 	}
 	// global args with outputNodes
 	for _, n := range globalNodes {
-		args = append(args, _getGlobalArgs(n)...)
+		//args = append(args, _getGlobalArgs(n)...)
+		args = append(_getGlobalArgs(n), args...)
 	}
 	if s.Context.Value("OverWriteOutput") != nil {
 		args = append(args, "-y")
