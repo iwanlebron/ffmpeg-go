@@ -1,7 +1,5 @@
 # ffmpeg-go
 
-## fork from github.com/u2takey/ffmpeg-go
-
 ffmpeg-go is golang port of https://github.com/kkroening/ffmpeg-python
 
 check examples/example_test.go and ffmpeg_test.go for more examples.
