@@ -1,11 +1,5 @@
 package ffmpeg_go
 
-import (
-	"fmt"
-	"log"
-	"strings"
-)
-
 func DebugNodes(node []DagNode) {
 }
 
