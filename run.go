@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/exec"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -95,7 +96,7 @@ func _allocateFilterStreamNames(nodes []*Node, outOutingEdgeMaps map[int]map[Lab
 with same upstream label %s; a 'split'' filter is probably required`, n.name, l))
 			}
 			streamNameMap[fmt.Sprintf("%d%s", n.Hash(), l)] = fmt.Sprintf("s%d", sc)
-			sc += 1
+			sc++
 		}
 	}
 }
@@ -128,7 +129,7 @@ func _getOutputArgs(node *Node, streamNameMap map[string]string) []string {
 		}
 	}
 	kwargs := node.kwargs.Copy()
-	
+
 	filename := kwargs.PopString("filename")
 	if kwargs.HasKey("format") {
 		args = append(args, "-f", kwargs.PopString("format"))
@@ -142,7 +143,7 @@ func _getOutputArgs(node *Node, streamNameMap map[string]string) []string {
 	if kwargs.HasKey("video_size") {
 		args = append(args, "-video_size", kwargs.PopString("video_size"))
 	}
-	
+
 	args = append(args, ConvertKwargsToCmdLineArgs(kwargs)...)
 	args = append(args, filename)
 	return args
@@ -167,7 +168,7 @@ func (s *Stream) GetArgs() []string {
 		n := sorted[i].(*Node)
 		switch n.nodeType {
 		case "InputNode":
-			streamNameMap[fmt.Sprintf("%d", n.Hash())] = fmt.Sprintf("%d", len(inputNodes))
+			streamNameMap[strconv.Itoa(n.Hash())] = strconv.Itoa(len(inputNodes))
 			inputNodes = append(inputNodes, n)
 		case "OutputNode":
 			outputNodes = append(outputNodes, n)
@@ -192,7 +193,7 @@ func (s *Stream) GetArgs() []string {
 	}
 	// global args with outputNodes
 	for _, n := range globalNodes {
-		//args = append(args, _getGlobalArgs(n)...)
+		// args = append(args, _getGlobalArgs(n)...)
 		args = append(_getGlobalArgs(n), args...)
 	}
 	if s.Context.Value("OverWriteOutput") != nil {
@@ -242,12 +243,12 @@ type CompilationOption func(s *Stream, cmd *exec.Cmd)
 // SeparateProcessGroup ensures that the command is run in a separate process
 // group. This is useful to enable handling of signals such as SIGINT without
 // propagating them to the ffmpeg process.
-//func SeparateProcessGroup() CompilationOption {
-//	return func(s *Stream, cmd *exec.Cmd) {
-//		cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true, Pgid: 0}
+//
+//	func SeparateProcessGroup() CompilationOption {
+//		return func(s *Stream, cmd *exec.Cmd) {
+//			cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true, Pgid: 0}
+//		}
 //	}
-//}
-
 func (s *Stream) SetFfmpegPath(path string) *Stream {
 	s.FfmpegPath = path
 	return s
@@ -290,14 +291,14 @@ func (s *Stream) Run(fn func(), options ...CompilationOption) error {
 		}
 	}()
 	return s.Compile(options...).Run()
-	//return s.run(s.Compile(options...))
+	// return s.run(s.Compile(options...))
 }
 
-//func (s *Stream) run(c *exec.Cmd) error {
+// func (s *Stream) run(c *exec.Cmd) error {
 //	if err := c.Start(); err != nil {
 //		return err
 //	}
 //	s.Context = context.WithValue(s.Context, "pid", c.Process.Pid)
 //	return c.Wait()
 //
-//}
+// }

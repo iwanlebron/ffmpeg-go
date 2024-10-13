@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/u2takey/go-utils/sets"
@@ -260,7 +261,7 @@ func (n *Node) GetFilter(outgoingEdges []DagEdge) string {
 	}
 	args, kwargs, ret := n.args, n.kwargs, ""
 	if n.name == "split" || n.name == "asplit" {
-		args = []string{fmt.Sprintf("%d", len(outgoingEdges))}
+		args = []string{strconv.Itoa(len(outgoingEdges))}
 	}
 	// args = Args(args).EscapeWith("\\'=:")
 	for _, k := range kwargs.EscapeWith("\\'=:").SortedKeys() {

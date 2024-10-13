@@ -10,7 +10,7 @@ import (
 	"github.com/u2takey/go-utils/sets"
 )
 
-func getString(item interface{}) string {
+func getString(item any) string {
 	if a, ok := item.(interface{ String() string }); ok {
 		return a.String()
 	}
@@ -21,7 +21,7 @@ func getString(item interface{}) string {
 		return strings.Join(a, ", ")
 	case Args:
 		return strings.Join(a, ", ")
-	case []interface{}:
+	case []any:
 		var r []string
 		for _, b := range a {
 			r = append(r, getString(b))
@@ -37,7 +37,7 @@ func getString(item interface{}) string {
 			r = append(r, fmt.Sprintf("%s: %s", k, getString(a[k])))
 		}
 		return fmt.Sprintf("{%s}", strings.Join(r, ", "))
-	case map[string]interface{}:
+	case map[string]any:
 		var keys, r []string
 		for k := range a {
 			keys = append(keys, k)
@@ -51,7 +51,7 @@ func getString(item interface{}) string {
 	return fmt.Sprintf("%v", item)
 }
 
-func getHash(item interface{}) int {
+func getHash(item any) int {
 	h := fnv.New64()
 	switch a := item.(type) {
 	case interface{ Hash() int }:
@@ -62,7 +62,7 @@ func getHash(item interface{}) int {
 	case []byte:
 		_, _ = h.Write(a)
 		return int(h.Sum64())
-	case map[string]interface{}:
+	case map[string]any:
 		b := 0
 		for k, v := range a {
 			b += getHash(k) + getHash(v)
@@ -111,7 +111,7 @@ func (a Args) EscapeWith(chars string) Args {
 	return out
 }
 
-type KwArgs map[string]interface{}
+type KwArgs map[string]any
 
 func MergeKwArgs(args []KwArgs) KwArgs {
 	a := KwArgs{}
@@ -168,14 +168,14 @@ func (a KwArgs) HasKey(k string) bool {
 	return ok
 }
 
-func (a KwArgs) GetDefault(k string, defaultV interface{}) interface{} {
+func (a KwArgs) GetDefault(k string, defaultV any) any {
 	if v, ok := a[k]; ok {
 		return v
 	}
 	return defaultV
 }
 
-func (a KwArgs) PopDefault(k string, defaultV interface{}) interface{} {
+func (a KwArgs) PopDefault(k string, defaultV any) any {
 	if v, ok := a[k]; ok {
 		defer delete(a, k)
 		return v

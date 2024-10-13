@@ -94,11 +94,11 @@ func (s *Stream) Drawtext(text string, x, y int, escape bool, kwargs ...KwArgs) 
 	if x != 0 {
 		args["x"] = x
 	}
-	
+
 	if y != 0 {
 		args["y"] = y
 	}
-	
+
 	return NewFilterNode("drawtext", []*Stream{s}, 1, nil, args).Stream("", "")
 }
 

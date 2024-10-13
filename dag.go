@@ -8,10 +8,10 @@ import (
 //
 // Edges:
 // DagNodes are connected by edges.  An edge connects two nodes with a label for each side:
-// - ``upstream_node``: upstream/parent node
-// - ``upstream_label``: label on the outgoing side of the upstream node
-// - ``downstream_node``: downstream/child node
-// - ``downstream_label``: label on the incoming side of the downstream node
+// - “upstream_node“: upstream/parent node
+// - “upstream_label“: label on the outgoing side of the upstream node
+// - “downstream_node“: downstream/child node
+// - “downstream_label“: label on the incoming side of the downstream node
 //
 // For example, DagNode A may be connected to DagNode B with an edge labelled "foo" on A's side, and "bar" on B's
 // side:
@@ -35,18 +35,22 @@ import (
 //
 // String representation:
 // In order for graph visualization tools to show useful information, nodes must be representable as strings.  The
-// ``String`` operator should provide a more or less "full" representation of the node, and the ``ShortRepr``
+// “String“ operator should provide a more or less "full" representation of the node, and the “ShortRepr“
 // property should be a shortened, concise representation.
 //
 // Again, because nodes are immutable, the string representations should remain constant.
 type DagNode interface {
 	Hash() int
+
 	// Equal Compare two nodes
 	Equal(other DagNode) bool
+
 	// String Return a full string representation of the node.
 	String() string
+
 	// ShortRepr Return a partial/concise representation of the node
 	ShortRepr() string
+
 	// IncomingEdgeMap Provides information about all incoming edges that connect to this node.
 	// The edge map is a dictionary that maps an ``incoming_label`` to ``(outgoing_node, outgoing_label)``.  Note that
 	// implicity, ``incoming_node`` is ``self``.  See "Edges" section above.
@@ -54,11 +58,13 @@ type DagNode interface {
 }
 
 type Label string
+
 type NodeInfo struct {
 	Node     DagNode
 	Label    Label
 	Selector Selector
 }
+
 type Selector string
 
 type DagEdge struct {
@@ -97,7 +103,6 @@ func GetOutGoingEdges(upStreamNode DagNode, outOutingEdgeMap map[Label][]NodeInf
 				UpStreamSelector: downStreamInfo.Selector,
 			})
 		}
-		
 	}
 	return edges
 }
@@ -106,7 +111,7 @@ func TopSort(downStreamNodes []DagNode) (sortedNodes []DagNode, outOutingEdgeMap
 	markedNodes := map[int]struct{}{}
 	markedSortedNodes := map[int]struct{}{}
 	outOutingEdgeMaps = map[int]map[Label][]NodeInfo{}
-	
+
 	var visit func(upStreamNode, downstreamNode DagNode, upStreamLabel, downStreamLabel Label, downStreamSelector Selector) error
 	visit = func(upStreamNode, downstreamNode DagNode, upStreamLabel, downStreamLabel Label, downStreamSelector Selector) error {
 		if _, ok := markedNodes[upStreamNode.Hash()]; ok {
@@ -123,7 +128,7 @@ func TopSort(downStreamNodes []DagNode) (sortedNodes []DagNode, outOutingEdgeMap
 				Selector: downStreamSelector,
 			})
 		}
-		
+
 		if _, ok := markedSortedNodes[upStreamNode.Hash()]; !ok {
 			markedNodes[upStreamNode.Hash()] = struct{}{}
 			for _, edge := range GetInComingEdges(upStreamNode, upStreamNode.IncomingEdgeMap()) {
@@ -138,7 +143,7 @@ func TopSort(downStreamNodes []DagNode) (sortedNodes []DagNode, outOutingEdgeMap
 		}
 		return nil
 	}
-	
+
 	for len(downStreamNodes) > 0 {
 		node := downStreamNodes[len(downStreamNodes)-1]
 		downStreamNodes = downStreamNodes[:len(downStreamNodes)-1]

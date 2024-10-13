@@ -3,6 +3,7 @@ package ffmpeg_go
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"os/exec"
 	"time"
 )
@@ -18,7 +19,7 @@ func ProbeWithTimeout(probePath, fileName string, timeOut time.Duration, kwargs 
 		"show_streams": "",
 		"of":           "json",
 	}
-	
+
 	return ProbeWithTimeoutExec(probePath, fileName, timeOut, MergeKwArgs([]KwArgs{args, kwargs}))
 }
 
@@ -37,6 +38,7 @@ func ProbeWithTimeoutExec(probePath, fileName string, timeOut time.Duration, kwa
 	cmd := exec.CommandContext(ctx, probePath, args...)
 	buf := bytes.NewBuffer(nil)
 	cmd.Stdout = buf
+	fmt.Println(cmd.String())
 	err := cmd.Run()
 	if err != nil {
 		return "", err

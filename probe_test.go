@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strconv"
 	"testing"
-	
+
 	"github.com/stretchr/testify/assert"
 )
 
@@ -15,6 +15,10 @@ func TestProbe(t *testing.T) {
 	duration, err := probeOutputDuration(data)
 	assert.Nil(t, err)
 	assert.Equal(t, fmt.Sprintf("%f", duration), "7.036000")
+
+	_, err = ProbeWithTimeout("", "url", 1, KwArgs{
+		"-rtsp_transport": "tcp",
+	})
 }
 
 type probeFormat struct {

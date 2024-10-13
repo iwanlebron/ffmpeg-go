@@ -3,7 +3,6 @@ package ffmpeg_go
 import (
 	"context"
 	"errors"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -65,7 +64,7 @@ func (s *Stream) WithMemSet(n string) *Stream {
 }
 
 func writeCGroupFile(rootPath, file string, value string) error {
-	return ioutil.WriteFile(filepath.Join(rootPath, file), []byte(value), 0755)
+	return os.WriteFile(filepath.Join(rootPath, file), []byte(value), 0755)
 }
 
 func (s *Stream) RunWithResource(cpuRequest, cpuLimit float32) error {

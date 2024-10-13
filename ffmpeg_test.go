@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 	"testing"
-	
+
 	"github.com/stretchr/testify/assert"
 	"github.com/u2takey/go-utils/rand"
 )
@@ -16,26 +16,26 @@ const (
 	TestOverlayFile = "./examples/sample_data/overlay.png"
 )
 
-//ffmpeg -y -rtsp_transport tcp -an -i rtsp://admin:password01!@192.168.188.21:554/Streaming/Channels/601
-//-r 15 -g 30 -c:v copy -c:a copy -b:v 1000k -flags +global_header -strict experimental
-//-f tee -map 0:v
-//[f=segment:segment_time=\'00:01:00\':reset_timestamps=1:segment_atclocktime=1:strftime=1:segment_format=mpegts]
-//static/records/8e7bf4ddff2a4f18adb36496334356fe/%Y-%m-%d-%H-%M-%S.ts|
-//[f=flv]rtmp://192.168.111.140/live/8e7bf4ddff2a4f18adb36496334356fe
+// ffmpeg -y -rtsp_transport tcp -an -i rtsp://admin:password01!@192.168.188.21:554/Streaming/Channels/601
+// -r 15 -g 30 -c:v copy -c:a copy -b:v 1000k -flags +global_header -strict experimental
+// -f tee -map 0:v
+// [f=segment:segment_time=\'00:01:00\':reset_timestamps=1:segment_atclocktime=1:strftime=1:segment_format=mpegts]
+// static/records/8e7bf4ddff2a4f18adb36496334356fe/%Y-%m-%d-%H-%M-%S.ts|
+// [f=flv]rtmp://192.168.111.140/live/8e7bf4ddff2a4f18adb36496334356fe
 
-//ffmpeg -y -an -i rtmp://127.0.0.1/live/test -c:v copy -c:a copy -flags +global_header -strict experimental -f tee
-//-map 0:v "[f=segment:reset_timestamps=1:segment_atclocktime=1:segment_time=60:strftime=1]./record/%Y%m%d%H%M.mp4|[f=flv]rtmp://127.0.0.1/live/mac"
+// ffmpeg -y -an -i rtmp://127.0.0.1/live/test -c:v copy -c:a copy -flags +global_header -strict experimental -f tee
+// -map 0:v "[f=segment:reset_timestamps=1:segment_atclocktime=1:segment_time=60:strftime=1]./record/%Y%m%d%H%M.mp4|[f=flv]rtmp://127.0.0.1/live/mac"
 
-//ffmpeg -use_wallclock_as_timestamps 1 - rtsp_transport tcp -i rtsp://[username]:[password]@[ip]:[port]
-//-vcodec copy -acodec copy -flags +global_header -strict experimental
-//-f segment -reset_timestamps 1 -segment_atclocktime 1 -segment_time 60 -strftime 1 /outdir/%Y%m%d%H%M.mp4
+// ffmpeg -use_wallclock_as_timestamps 1 - rtsp_transport tcp -i rtsp://[username]:[password]@[ip]:[port]
+// -vcodec copy -acodec copy -flags +global_header -strict experimental
+// -f segment -reset_timestamps 1 -segment_atclocktime 1 -segment_time 60 -strftime 1 /outdir/%Y%m%d%H%M.mp4
 
-//ffmpeg -y -an -i rtmp://127.0.0.1/live/test -c:v copy -c:a copy  -flags +global_header -strict experimental
-//-f tee -map 0:v "[f=segment -reset_timestamps=1 -segment_atclocktime=1 -segment_time=60 -strftime=1]./record/%Y%m%d%H%M.mp4|[f=flv]rtmp://127.0.0.1/live/mac"
+// ffmpeg -y -an -i rtmp://127.0.0.1/live/test -c:v copy -c:a copy  -flags +global_header -strict experimental
+// -f tee -map 0:v "[f=segment -reset_timestamps=1 -segment_atclocktime=1 -segment_time=60 -strftime=1]./record/%Y%m%d%H%M.mp4|[f=flv]rtmp://127.0.0.1/live/mac"
 
-//ffmpeg -y -an -i rtmp://127.0.0.1/live/test -c:v copy -c:a copy  -flags +global_header -strict experimental
-//-f tee -map 0:v "[f=segment:reset_timestamps=1:segment_atclocktime=1:segment_time=60:strftime=1]./record/%Y%m%d%H%M.mp4|[f=flv]rtmp://127.0.0.1/live/mac"
-//multi
+// ffmpeg -y -an -i rtmp://127.0.0.1/live/test -c:v copy -c:a copy  -flags +global_header -strict experimental
+// -f tee -map 0:v "[f=segment:reset_timestamps=1:segment_atclocktime=1:segment_time=60:strftime=1]./record/%Y%m%d%H%M.mp4|[f=flv]rtmp://127.0.0.1/live/mac"
+// multi
 func TestMultiOutput(t *testing.T) {
 	Input("rtmp://127.0.0.1/live/test").
 		Output("[f=segment:reset_timestamps=1:segment_atclocktime=1:segment_time=60:strftime=1]"+
@@ -53,8 +53,8 @@ func TestMultiOutput(t *testing.T) {
 				"f":   "tee",
 				"map": "0:v",
 			}).GlobalArgs("-y", "-an").Run(nil)
-	//log.Println(output.GetArgs())
-	//output.String()
+	// log.Println(output.GetArgs())
+	// output.String()
 }
 
 func TestFluentEquality(t *testing.T) {
@@ -66,7 +66,7 @@ func TestFluentEquality(t *testing.T) {
 	t3 := base1.Trim(KwArgs{"start_frame": 10, "end_frame": 30})
 	t4 := base2.Trim(KwArgs{"start_frame": 10, "end_frame": 20})
 	t5 := base3.Trim(KwArgs{"start_frame": 10, "end_frame": 20})
-	
+
 	assert.Equal(t, t1.Hash(), t2.Hash())
 	assert.Equal(t, t1.Hash(), t4.Hash())
 	assert.NotEqual(t, t1.Hash(), t3.Hash())
@@ -93,7 +93,7 @@ func TestRepeatArgs(t *testing.T) {
 
 func TestGlobalArgs(t *testing.T) {
 	o := Input("dummy.mp4", nil).Output("dummy2.mp4", nil).GlobalArgs("-progress", "someurl")
-	
+
 	assert.Equal(t, o.GetArgs(), []string{
 		"-i",
 		"dummy.mp4",
@@ -117,13 +117,13 @@ func TestSimpleOverLayExample(t *testing.T) {
 	err := s.Run(func() {
 		log.Println("pid ", s.Context.Value("pid").(int))
 	})
-	
+
 	// this code will panic, because s is not complete
-	//s := Input(TestInputFile1, nil)
-	//err := s.Overlay(Input(TestOverlayFile), "").
+	// s := Input(TestInputFile1, nil)
+	// err := s.Overlay(Input(TestOverlayFile), "").
 	//	Output(TestOutputFile1).OverWriteOutput().Run(func() {
 	//	log.Println("pid ", s.Context.Value("pid").(int))
-	//})
+	// })
 	assert.Nil(t, err)
 }
 
@@ -131,7 +131,9 @@ func TestSimpleOutputArgs(t *testing.T) {
 	cmd := Input(TestInputFile1).Output("imageFromVideo_%d.jpg", KwArgs{"vf": "fps=3", "qscale:v": 2})
 	assert.Equal(t, []string{
 		"-i", "./examples/sample_data/in1.mp4", "-qscale:v",
-		"2", "-vf", "fps=3", "imageFromVideo_%d.jpg"}, cmd.GetArgs())
+		"2", "-vf", "fps=3",
+		"imageFromVideo_%d.jpg",
+	}, cmd.GetArgs())
 }
 
 func TestAutomaticStreamSelection(t *testing.T) {
@@ -165,7 +167,8 @@ func ComplexFilterExample() *Stream {
 	overlayFile := Input(TestOverlayFile).Crop(10, 10, 158, 112)
 	return Concat([]*Stream{
 		split0.Trim(KwArgs{"start_frame": 10, "end_frame": 20}),
-		split1.Trim(KwArgs{"start_frame": 30, "end_frame": 40})}).
+		split1.Trim(KwArgs{"start_frame": 30, "end_frame": 40}),
+	}).
 		Overlay(overlayFile.HFlip(), "").
 		DrawBox(50, 50, 120, 120, "red", 5).
 		Output(TestOutputFile1).
@@ -214,10 +217,10 @@ func TestCombinedOutput(t *testing.T) {
 
 func TestFilterWithSelector(t *testing.T) {
 	i := Input(TestInputFile1)
-	
+
 	v1 := i.Video().HFlip()
 	a1 := i.Audio().Filter("aecho", Args{"0.8", "0.9", "1000", "0.3"})
-	
+
 	out := Output([]*Stream{a1, v1}, TestOutputFile1)
 	assert.Equal(t, []string{
 		"-i",
@@ -229,14 +232,13 @@ func TestFilterWithSelector(t *testing.T) {
 		"-map",
 		"[s1]",
 		TestOutputFile1}, out.GetArgs())
-	
 }
 
 func ComplexFilterAsplitExample() *Stream {
 	split := Input(TestInputFile1).VFlip().ASplit()
 	split0 := split.Get("0")
 	split1 := split.Get("1")
-	
+
 	return Concat([]*Stream{
 		split0.Filter("atrim", nil, KwArgs{"start": 10, "end": 20}),
 		split1.Filter("atrim", nil, KwArgs{"start": 30, "end": 40}),
@@ -265,7 +267,6 @@ func TestConcatOutput(t *testing.T) {
 	in2 := Input("in2.mp4")
 	err := Concat([]*Stream{in1, in2}).Output("out.mp4").Run(nil)
 	assert.Equal(t, nil, err)
-	
 }
 
 func TestFilterConcatAudioOnly(t *testing.T) {
@@ -335,20 +336,18 @@ func TestCompile(t *testing.T) {
 	assert.Equal(t, out.Compile().Args, []string{"ffmpeg", "-i", "dummy.mp4", "dummy2.mp4"})
 }
 
-//func TestCompileWithOptions(t *testing.T) {
-//	out := Input("dummy.mp4").Output("dummy2.mp4")
-//	cmd := out.Compile(SeparateProcessGroup())
-//	assert.Equal(t, cmd.SysProcAttr.Pgid, 0)
-//	assert.True(t, cmd.SysProcAttr.Setpgid)
-//}
-
+//	func TestCompileWithOptions(t *testing.T) {
+//		out := Input("dummy.mp4").Output("dummy2.mp4")
+//		cmd := out.Compile(SeparateProcessGroup())
+//		assert.Equal(t, cmd.SysProcAttr.Pgid, 0)
+//		assert.True(t, cmd.SysProcAttr.Setpgid)
+//	}
 func TestPipe(t *testing.T) {
-	
 	width, height := 32, 32
 	frameSize := width * height * 3
 	frameCount, startFrame := 10, 2
 	_, _ = frameCount, frameSize
-	
+
 	out := Input(
 		"pipe:0",
 		KwArgs{
@@ -358,7 +357,7 @@ func TestPipe(t *testing.T) {
 			"framerate":    10}).
 		Trim(KwArgs{"start_frame": startFrame}).
 		Output("pipe:1", KwArgs{"format": "rawvideo"})
-	
+
 	args := out.GetArgs()
 	assert.Equal(t, args, []string{
 		"-f",
@@ -379,7 +378,7 @@ func TestPipe(t *testing.T) {
 		"rawvideo",
 		"pipe:1",
 	})
-	
+
 	inBuf := bytes.NewBuffer(nil)
 	for i := 0; i < frameSize*frameCount; i++ {
 		inBuf.WriteByte(byte(rand.IntnRange(0, 255)))
@@ -393,10 +392,10 @@ func TestPipe(t *testing.T) {
 func TestView(t *testing.T) {
 	a, err := ComplexFilterExample().View(ViewTypeFlowChart)
 	assert.Nil(t, err)
-	
+
 	b, err := ComplexFilterAsplitExample().View(ViewTypeStateDiagram)
 	assert.Nil(t, err)
-	
+
 	t.Log(a)
 	t.Log(b)
 }
@@ -413,7 +412,7 @@ func TestInputOrder(t *testing.T) {
 	stream := Concat(streams).Output("output.mp4")
 	args := stream.GetArgs()
 	actualFilenames := make([]string, 0, streamNum)
-	//Command looks like `-i 00.mp4 -i 01.mp4...` so actual filenames are the first streamNum even args
+	// Command looks like `-i 00.mp4 -i 01.mp4...` so actual filenames are the first streamNum even args
 	for i := 1; i <= streamNum*2; i += 2 {
 		actualFilenames = append(actualFilenames, args[i])
 	}

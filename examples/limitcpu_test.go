@@ -4,9 +4,9 @@ package examples
 
 import (
 	"testing"
-	
+
 	"github.com/stretchr/testify/assert"
-	
+
 	ffmpeg "github.com/ivanlebron/ffmpeg-go"
 )
 
@@ -16,7 +16,8 @@ func ComplexFilterExample(testInputFile, testOverlayFile, testOutputFile string)
 	overlayFile := ffmpeg.Input(testOverlayFile).Crop(10, 10, 158, 112)
 	return ffmpeg.Concat([]*ffmpeg.Stream{
 		split0.Trim(ffmpeg.KwArgs{"start_frame": 10, "end_frame": 20}),
-		split1.Trim(ffmpeg.KwArgs{"start_frame": 30, "end_frame": 40})}).
+		split1.Trim(ffmpeg.KwArgs{"start_frame": 30, "end_frame": 40}),
+	}).
 		Overlay(overlayFile.HFlip(), "").
 		DrawBox(50, 50, 120, 120, "red", 5).
 		Output(testOutputFile).

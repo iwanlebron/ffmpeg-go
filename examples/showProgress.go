@@ -12,12 +12,13 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	
+
 	ffmpeg "github.com/ivanlebron/ffmpeg-go"
 )
 
 // ExampleShowProgress is an example of using the ffmpeg `-progress` option with a
-//    unix-domain socket to report progress
+//
+//	unix-domain socket to report progress
 func ExampleShowProgress(inFileName, outFileName string) {
 	a, err := ffmpeg.Probe("", inFileName)
 	if err != nil {
@@ -27,7 +28,7 @@ func ExampleShowProgress(inFileName, outFileName string) {
 	if err != nil {
 		panic(err)
 	}
-	
+
 	err = ffmpeg.Input(inFileName).
 		Output(outFileName, ffmpeg.KwArgs{"c:v": "libx264", "preset": "veryslow"}).
 		GlobalArgs("-progress", "unix://"+TempSock(totalDuration)).
@@ -40,14 +41,14 @@ func ExampleShowProgress(inFileName, outFileName string) {
 
 func TempSock(totalDuration float64) string {
 	// serve
-	
+
 	rand.Seed(time.Now().Unix())
 	sockFileName := path.Join(os.TempDir(), fmt.Sprintf("%d_sock", rand.Int()))
 	l, err := net.Listen("unix", sockFileName)
 	if err != nil {
 		panic(err)
 	}
-	
+
 	go func() {
 		re := regexp.MustCompile(`out_time_ms=(\d+)`)
 		fd, err := l.Accept()
@@ -81,7 +82,7 @@ func TempSock(totalDuration float64) string {
 			}
 		}
 	}()
-	
+
 	return sockFileName
 }
 

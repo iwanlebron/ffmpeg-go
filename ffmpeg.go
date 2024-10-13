@@ -1,24 +1,16 @@
 package ffmpeg_go
 
 import (
-	"context"
 	"errors"
-	"io"
 	"log"
-	"os"
-	"strings"
-	
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 )
 
-// Input file URL (ffmpeg ``-i`` option)
+// Input file URL (ffmpeg “-i“ option)
 //
-// Any supplied kwargs are passed to ffmpeg verbatim (e.g. ``t=20``,
-// ``f='mp4'``, ``acodec='pcm'``, etc.).
+// Any supplied kwargs are passed to ffmpeg verbatim (e.g. “t=20“,
+// “f='mp4'“, “acodec='pcm'“, etc.).
 //
-// To tell ffmpeg to read from stdin, use ``pipe:`` as the filename.
+// To tell ffmpeg to read from stdin, use “pipe:“ as the filename.
 //
 // Official documentation: `Main options <https://ffmpeg.org/ffmpeg.html#Main-options>`__
 func Input(filename string, kwargs ...KwArgs) *Stream {
@@ -58,28 +50,28 @@ func MergeOutputs(streams ...*Stream) *Stream {
 	return NewMergeOutputsNode("merge_output", streams).Stream("", "")
 }
 
-//Output file URL
+// Output file URL
 //
-//    Syntax:
-//        `ffmpeg.Output([]*Stream{stream1, stream2, stream3...}, filename, kwargs)`
+//	Syntax:
+//	    `ffmpeg.Output([]*Stream{stream1, stream2, stream3...}, filename, kwargs)`
 //
-//    Any supplied keyword arguments are passed to ffmpeg verbatim (e.g.
-//    ``t=20``, ``f='mp4'``, ``acodec='pcm'``, ``vcodec='rawvideo'``,
-//    etc.).  Some keyword-arguments are handled specially, as shown below.
+//	Any supplied keyword arguments are passed to ffmpeg verbatim (e.g.
+//	``t=20``, ``f='mp4'``, ``acodec='pcm'``, ``vcodec='rawvideo'``,
+//	etc.).  Some keyword-arguments are handled specially, as shown below.
 //
-//    Args:
-//        video_bitrate: parameter for ``-b:v``, e.g. ``video_bitrate=1000``.
-//        audio_bitrate: parameter for ``-b:a``, e.g. ``audio_bitrate=200``.
-//        format: alias for ``-f`` parameter, e.g. ``format='mp4'``
-//            (equivalent to ``f='mp4'``).
+//	Args:
+//	    video_bitrate: parameter for ``-b:v``, e.g. ``video_bitrate=1000``.
+//	    audio_bitrate: parameter for ``-b:a``, e.g. ``audio_bitrate=200``.
+//	    format: alias for ``-f`` parameter, e.g. ``format='mp4'``
+//	        (equivalent to ``f='mp4'``).
 //
-//    If multiple streams are provided, they are mapped to the same
-//    output.
+//	If multiple streams are provided, they are mapped to the same
+//	output.
 //
-//    To tell ffmpeg to write to stdout, use ``pipe:`` as the filename.
+//	To tell ffmpeg to write to stdout, use ``pipe:`` as the filename.
 //
-//    Official documentation: `Synopsis <https://ffmpeg.org/ffmpeg.html#Synopsis>`__
-//    """
+//	Official documentation: `Synopsis <https://ffmpeg.org/ffmpeg.html#Synopsis>`__
+//	"""
 func Output(streams []*Stream, fileName string, kwargs ...KwArgs) *Stream {
 	args := MergeKwArgs(kwargs)
 	if !args.HasKey("filename") {
@@ -88,7 +80,7 @@ func Output(streams []*Stream, fileName string, kwargs ...KwArgs) *Stream {
 		}
 		args["filename"] = fileName
 	}
-	
+
 	return NewOutputNode("output", streams, nil, args).Stream("", "")
 }
 
@@ -96,43 +88,43 @@ func (s *Stream) Output(fileName string, kwargs ...KwArgs) *Stream {
 	if s.Type != "FilterableStream" {
 		log.Panic("cannot output on non-FilterableStream")
 	}
-	if strings.HasPrefix(fileName, "s3://") {
-		return s.outputS3Stream(fileName, kwargs...)
-	}
+	// if strings.HasPrefix(fileName, "s3://") {
+	//	return s.outputS3Stream(fileName, kwargs...)
+	// }
 	return Output([]*Stream{s}, fileName, kwargs...)
 }
 
-func (s *Stream) outputS3Stream(fileName string, kwargs ...KwArgs) *Stream {
-	r, w := io.Pipe()
-	fileL := strings.SplitN(strings.TrimPrefix(fileName, "s3://"), "/", 2)
-	if len(fileL) != 2 {
-		log.Panic("s3 file format not valid")
-	}
-	args := MergeKwArgs(kwargs)
-	awsConfig := args.PopDefault("aws_config", &aws.Config{}).(*aws.Config)
-	bucket, key := fileL[0], fileL[1]
-	o := Output([]*Stream{s}, "pipe:", args).
-		WithOutput(w, os.Stdout)
-	done := make(chan struct{})
-	runHook := RunHook{
-		f: func() {
-			defer func() {
-				done <- struct{}{}
-			}()
-			sess, err := session.NewSession(awsConfig)
-			uploader := s3manager.NewUploader(sess)
-			_, err = uploader.Upload(&s3manager.UploadInput{
-				Bucket: &bucket,
-				Key:    &key,
-				Body:   r,
-			})
-			if err != nil {
-				log.Println("upload fail", err)
-			}
-		},
-		done:   done,
-		closer: w,
-	}
-	o.Context = context.WithValue(o.Context, "run_hook", &runHook)
-	return o
-}
+// func (s *Stream) outputS3Stream(fileName string, kwargs ...KwArgs) *Stream {
+//	r, w := io.Pipe()
+//	fileL := strings.SplitN(strings.TrimPrefix(fileName, "s3://"), "/", 2)
+//	if len(fileL) != 2 {
+//		log.Panic("s3 file format not valid")
+//	}
+//	args := MergeKwArgs(kwargs)
+//	awsConfig := args.PopDefault("aws_config", &aws.Config{}).(*aws.Config)
+//	bucket, key := fileL[0], fileL[1]
+//	o := Output([]*Stream{s}, "pipe:", args).
+//		WithOutput(w, os.Stdout)
+//	done := make(chan struct{})
+//	runHook := RunHook{
+//		f: func() {
+//			defer func() {
+//				done <- struct{}{}
+//			}()
+//			sess, err := session.NewSession(awsConfig)
+//			uploader := s3manager.NewUploader(sess)
+//			_, err = uploader.Upload(&s3manager.UploadInput{
+//				Bucket: &bucket,
+//				Key:    &key,
+//				Body:   r,
+//			})
+//			if err != nil {
+//				log.Println("upload fail", err)
+//			}
+//		},
+//		done:   done,
+//		closer: w,
+//	}
+//	o.Context = context.WithValue(o.Context, "run_hook", &runHook)
+//	return o
+// }

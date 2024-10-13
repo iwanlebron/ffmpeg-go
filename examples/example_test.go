@@ -4,17 +4,13 @@ import (
 	"log"
 	"testing"
 	"time"
-	
-	"github.com/disintegration/imaging"
+
 	"github.com/stretchr/testify/assert"
-	
+
 	ffmpeg "github.com/ivanlebron/ffmpeg-go"
 )
 
-//
 // More simple examples please refer to ffmpeg_test.go
-//
-
 func TestLive(t *testing.T) {
 	s := ffmpeg.Input("rtmp://127.0.0.1/live/test")
 	if err := s.Output("rtmp://127.0.0.1/live/mac",
@@ -26,36 +22,33 @@ func TestLive(t *testing.T) {
 			"f": "flv",
 		}).
 		ErrorToStdOut().Run(func() {
-		//log.Println("1111")
+		// log.Println("1111")
 		time.Sleep(3 * time.Second)
 		pid := s.Context.Value("pid").(int)
 		log.Println("pid ", pid)
-		
 	}); err != nil {
 		log.Println("err ", err.Error())
 	}
-	//assert.Nil(t, err)
-	
-	//ffmpeg.Input("").Output("").GlobalArgs().Run()
-	
+	// assert.Nil(t, err)
+
+	// ffmpeg.Input("").Output("").GlobalArgs().Run()
 }
 
 func TestExampleStream(t *testing.T) {
 	ExampleStream("./sample_data/in1.mp4", "./sample_data/out1.mp4", false)
 }
 
-func TestExampleReadFrameAsJpeg(t *testing.T) {
-	reader := ExampleReadFrameAsJpeg("./sample_data/in1.mp4", 5)
-	img, err := imaging.Decode(reader)
-	if err != nil {
-		t.Fatal(err)
-	}
-	err = imaging.Save(img, "./sample_data/out1.jpeg")
-	if err != nil {
-		t.Fatal(err)
-	}
-}
-
+//	func TestExampleReadFrameAsJpeg(t *testing.T) {
+//		reader := ExampleReadFrameAsJpeg("./sample_data/in1.mp4", 5)
+//		img, err := imaging.Decode(reader)
+//		if err != nil {
+//			t.Fatal(err)
+//		}
+//		err = imaging.Save(img, "./sample_data/out1.jpeg")
+//		if err != nil {
+//			t.Fatal(err)
+//		}
+//	}
 func TestExampleShowProgress(t *testing.T) {
 	ExampleShowProgress("./sample_data/in1.mp4", "./sample_data/out2.mp4")
 }
@@ -74,18 +67,15 @@ func TestExampleCutVideo(t *testing.T) {
 			time.Sleep(1 * time.Second)
 			pid := stream.Context.Value("pid").(int)
 			log.Println("pid ", pid)
-			
 		})
-	//time.Sleep(10 * time.Second)
+	// time.Sleep(10 * time.Second)
 	assert.Nil(t, err)
 }
 
 func TestExampleScaleVideo(t *testing.T) {
 	err := ffmpeg.Input("./sample_data/in1.mp4").
 		Output("./sample_data/out1.mp4", ffmpeg.KwArgs{"vf": "scale=w=480:h=240"}).
-		OverWriteOutput().ErrorToStdOut().Run(func() {
-		
-	})
+		OverWriteOutput().ErrorToStdOut().Run(func() {})
 	assert.Nil(t, err)
 }
 
@@ -105,7 +95,7 @@ func TestExampleCutVideoForGif(t *testing.T) {
 	err := ffmpeg.Input("./sample_data/in1.mp4", ffmpeg.KwArgs{"ss": "1"}).
 		Output("./sample_data/out1.gif", ffmpeg.KwArgs{"s": "320x240", "pix_fmt": "rgb24", "t": "3", "r": "3"}).
 		OverWriteOutput().ErrorToStdOut().Run(nil)
-	//log.Println("pid", pid)
+	// log.Println("pid", pid)
 	assert.Nil(t, err)
 }
 

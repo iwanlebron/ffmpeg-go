@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"io"
 	"log"
-	
+
 	ffmpeg "github.com/ivanlebron/ffmpeg-go"
 )
 
@@ -23,7 +23,7 @@ func ExampleStream(inFileName, outFileName string, dream bool) {
 	if dream {
 		panic("Use DeepDream With Tensorflow haven't been implemented")
 	}
-	
+
 	runExampleStream(inFileName, outFileName)
 }
 
@@ -119,7 +119,7 @@ func process(reader io.ReadCloser, writer io.WriteCloser, w, h int) {
 func runExampleStream(inFile, outFile string) {
 	w, h := getVideoSize(inFile)
 	log.Println(w, h)
-	
+
 	pr1, pw1 := io.Pipe()
 	pr2, pw2 := io.Pipe()
 	done1 := startFFmpegProcess1(inFile, pw1)
