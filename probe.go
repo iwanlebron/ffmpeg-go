@@ -3,7 +3,6 @@ package ffmpeg_go
 import (
 	"bytes"
 	"context"
-	"fmt"
 	"os/exec"
 	"time"
 )
@@ -38,7 +37,6 @@ func ProbeWithTimeoutExec(probePath, fileName string, timeOut time.Duration, kwa
 	cmd := exec.CommandContext(ctx, probePath, args...)
 	buf := bytes.NewBuffer(nil)
 	cmd.Stdout = buf
-	fmt.Println(cmd.String())
 	err := cmd.Run()
 	if err != nil {
 		return "", err
